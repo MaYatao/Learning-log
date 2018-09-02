@@ -13,6 +13,11 @@
    <li>
        <h3><a href="{% url 'learning_logs:topic' topic.id %} ">{{topic}}</a>
         </h3>
+        <p>
+         <a href="{% url 'learning_logs:edit_topic' topic.id %}">edit topic</a>
+         <a href="{% url 'learning_logs:delete_topic'  topic.id %}">delete  topic</a>
+    </p>
+</li>
 {% empty %}
 　　　　　　　<li>No  topics have been yet. </li>
 {% endfor %}

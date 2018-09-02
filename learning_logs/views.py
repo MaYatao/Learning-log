@@ -88,3 +88,46 @@ def edit_entry(request,entry_id):
     
     context={'entry':entry,'topic':topic,'form':form}
     return render(request,'learning_logs/edit_entry.html',context) 
+
+@login_required
+def edit_topic(request,topic_id):
+    """编辑既有主题"""
+    topic=Topic.objects.get(id=topic_id)
+    
+  
+    if topic.owner!=request.user:
+        raise  Http404
+
+    if  request.method !='POST':
+        #初次请求，使用当前条目填充表单
+        form=TopicForm(instance=topic)
+    else:
+        #POST提交的数据，对数据进行处理
+        form=TopicForm(instance=topic,data=request.POST)
+        if  form.is_valid():
+            form.save()
+            return  HttpResponseRedirect(reverse('learning_logs:topic',args=[topic.id]))
+    
+    context={'topic':topic,'form':form}
+    return render(request,'learning_logs/edit_topic.html',context) 
+
+@login_required
+def delete_entry(request,entry_id):
+    """删除既有条目"""
+    entry=Entry.objects.get(id=entry_id)
+    topic=entry.topic
+    entry.delete()
+    if topic.owner!=request.user:
+        raise  Http404
+    entries=topic.entry_set.order_by('date_added')
+    context={'topic':topic,'entries':entries}
+    return render(request,'learning_logs/topic.html',context) 
+
+@login_required
+def delete_topic(request,topic_id):
+    """删除既有主题"""
+    topic=Topic.objects.get(id=topic_id)
+    topic.delete()
+    topics=Topic.objects.filter(owner=request.user).order_by('date_added')
+    context={'topics':topics}
+    return   render(request,'learning_logs/topics.html',context)
